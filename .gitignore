@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets et données fiscales : ne jamais versionner
+.env
+data/
+export/
+config/accounts.yaml
+dist/
+.DS_Store

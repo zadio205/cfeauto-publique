@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>SIREN {{ siren }}</h1>
+
+<h2>Documents</h2>
+{% if documents %}
+<div class="table"><table>
+  <tr><th>Type</th><th>Année</th><th>Intitulé</th><th>Collecté le</th></tr>
+  {% for d in documents %}
+  <tr class="{{ 'new' if not d.seen }}">
+    <td>{{ kind_labels.get(d.kind, d.kind) }}</td><td>{{ d.year }}</td>
+    <td><a href="/documents/{{ d.id }}/download">{{ d.title }}</a></td><td>{{ d.collected_at }}</td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% else %}<p class="muted">Aucun document.</p>{% endif %}
+
+<h2>Messages</h2>
+{% if messages %}
+<div class="table"><table>
+  <tr><th>Date</th><th>Objet</th></tr>
+  {% for m in messages %}
+  <tr class="{{ 'new' if not m.seen }}">
+    <td>{{ m.received_at or m.collected_at }}</td>
+    <td><a href="/messages/{{ m.id }}">{{ m.subject }}</a></td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% else %}<p class="muted">Aucun message.</p>{% endif %}
+{% endblock %}

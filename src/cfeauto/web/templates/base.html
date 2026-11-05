@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Collecte fiscale{% endblock %}</title>
+{% block head %}{% endblock %}
+<style>
+  :root { color-scheme: light dark; --bg: #f7f7f5; --fg: #1f2328; --muted: #646b73; --line: #d9dcdf; --card: #fff; --accent: #1f4f8f; --alert: #fff3d6; --alert-fg: #5c4300; --bad: #a12622; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #16181b; --fg: #e8e9ea; --muted: #a0a6ad; --line: #33373c; --card: #1f2226; --accent: #8db8ee; --alert: #3a2f12; --alert-fg: #f2dca0; --bad: #f08a85; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
+  header, main { max-width: 960px; margin: 0 auto; padding: 16px; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); }
+  header a { color: inherit; font-weight: 600; text-decoration: none; }
+  h1 { font-size: 22px; margin: 16px 0 8px; } h2 { font-size: 17px; margin: 24px 0 8px; }
+  a { color: var(--accent); }
+  .table { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: 0; }
+  th { color: var(--muted); font-size: 13px; font-weight: 500; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .muted { color: var(--muted); }
+  .new { font-weight: 600; }
+  .error { color: var(--bad); }
+  .action { font-weight: 600; background: var(--alert); color: var(--alert-fg); }
+  button { font: inherit; padding: 6px 12px; border: 0; border-radius: 4px; background: var(--accent); color: var(--bg); cursor: pointer; }
+  pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 12px; font: inherit; }
+</style>
+</head>
+<body>
+<header>
+  <a href="/">Collecte fiscale</a>
+  <form method="post" action="/runs"><button type="submit">Lancer une collecte</button></form>
+</header>
+<main>{% block content %}{% endblock %}</main>
+</body>
+</html>

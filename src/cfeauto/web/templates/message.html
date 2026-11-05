@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<p><a href="/dossiers/{{ message.siren }}">← {{ message.dossier_name }}</a></p>
+<h1>{{ message.subject }}</h1>
+<p class="muted">{{ message.received_at or message.collected_at }}</p>
+<pre>{{ message.body }}</pre>
+{% if attachments %}
+<h2>Pièces jointes</h2>
+<ul>
+  {% for a in attachments %}<li><a href="/documents/{{ a.id }}/download">{{ a.title }}</a></li>{% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

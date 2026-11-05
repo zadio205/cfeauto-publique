@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Dossiers</h1>
+{% if dossiers %}
+<div class="table"><table>
+  <tr><th>Société</th><th>SIREN</th><th class="num">Documents</th><th class="num">Messages</th></tr>
+  {% for d in dossiers %}
+  <tr>
+    <td><a href="/dossiers/{{ d.siren }}">{{ d.name }}</a></td>
+    <td>{{ d.siren }}</td>
+    <td class="num {{ 'new' if d.new_docs }}">{{ d.docs }}{% if d.new_docs %} ({{ d.new_docs }} nouv.){% endif %}</td>
+    <td class="num {{ 'new' if d.new_msgs }}">{{ d.msgs }}{% if d.new_msgs %} ({{ d.new_msgs }} nouv.){% endif %}</td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% else %}
+<p class="muted">Aucun document collecté pour l'instant.</p>
+{% endif %}
+
+{% if export_dir %}
+<h2>Export</h2>
+<form method="post" action="/export">
+  <p>Les avis sont copiés après chaque collecte, avec des noms lisibles, dans
+    <code>{{ export_dir }}</code>.
+    <button type="submit">Exporter tous les avis maintenant</button></p>
+</form>
+{% if exported is not none %}<p class="action">{{ exported }} fichier(s) copié(s){% if not exported %} : tout était déjà à jour{% endif %}.</p>{% endif %}
+{% if export_error %}<p class="error">Export impossible : vérifiez que le dossier existe et qu'aucun fichier n'y est ouvert.</p>{% endif %}
+{% endif %}
+
+<h2>Dernières collectes</h2>
+{% if runs %}
+<div class="table"><table>
+  <tr><th>N°</th><th>Statut</th><th>Origine</th><th>Créée le</th><th>Terminée le</th></tr>
+  {% for r in runs %}
+  <tr>
+    <td><a href="/runs/{{ r.id }}">{{ r.id }}</a></td>
+    <td class="{{ 'error' if r.status in ('failed', 'partial') }}">{{ r.status }}</td>
+    <td>{{ r.trigger }}</td><td>{{ r.created_at }}</td><td>{{ r.finished_at or "" }}</td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% else %}
+<p class="muted">Aucune collecte lancée.</p>
+{% endif %}
+{% endblock %}

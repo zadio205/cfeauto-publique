@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block head %}{% if run.status in ('queued', 'running') %}<meta http-equiv="refresh" content="5">{% endif %}{% endblock %}
+{% block content %}
+<h1>Collecte n° {{ run.id }}</h1>
+<p>Statut : <strong class="{{ 'error' if run.status in ('failed', 'partial') }}">{{ run.status }}</strong>
+  <span class="muted">· créée le {{ run.created_at }}{% if run.finished_at %} · terminée le {{ run.finished_at }}{% endif %}</span></p>
+{% if run.status == 'running' %}
+<form method="post" action="/runs/{{ run.id }}/connecte">
+  <p>Connecté dans la fenêtre impots.gouv.fr mais rien ne se passe ?
+    <button type="submit">Je suis connecté</button></p>
+</form>
+{% endif %}
+{% if events %}
+<div class="table"><table>
+  <tr><th>Heure</th><th>Compte</th><th>SIREN</th><th>Événement</th></tr>
+  {% for e in events %}
+  <tr>
+    <td>{{ e.created_at }}</td><td>{{ e.account_id or "" }}</td><td>{{ e.siren or "" }}</td>
+    <td class="{{ 'error' if e.level == 'error' }}{{ 'action' if e.level == 'action' }}">{{ e.message }}</td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% else %}
+<p class="muted">Aucun événement pour l'instant. Rechargez la page pour suivre l'avancement.</p>
+{% endif %}
+{% endblock %}

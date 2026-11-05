@@ -1,0 +1,52 @@
+# Parcours d'installation du README, puis tests, sur un vrai Windows
+name: Windows
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Installer cfeauto.bat
+        shell: cmd
+        run: call "Installer cfeauto.bat" < NUL
+
+      - name: Contrôle et droits sur data
+        shell: pwsh
+        run: |
+          # Les journaux exigent une connexion à GitHub : les résultats sont aussi publiés en annotations
+          $check = uv run --no-dev cfeauto check 2>&1 | Out-String
+          $code = $LASTEXITCODE
+          Write-Output "::notice title=cfeauto check ($code)::$($check -replace "`r?`n", '%0A')"
+          # 1 = portal.yaml non calibré, attendu ici ; 2 = erreur de configuration
+          if ($code -gt 1) { exit 1 }
+          $acl = icacls data | Out-String
+          Write-Output "::notice title=icacls data::$($acl -replace "`r?`n", '%0A')"
+          if ($acl -notmatch [regex]::Escape($env:USERNAME)) { Write-Output "::error::La session courante n'a pas accès à data"; exit 1 }
+          if ($acl -match "BUILTIN|OWNER RIGHTS|Everyone|Authenticated Users") { Write-Output "::error::data est accessible à d'autres comptes"; exit 1 }
+          # Un sous-dossier créé par le robot doit hériter des mêmes droits
+          uv run --no-dev python -c "from pathlib import Path; from cfeauto.securite import make_private_dir; make_private_dir(Path('data/documents/test'))"
+          $sub = icacls data\documents\test | Out-String
+          Write-Output "::notice title=icacls data\documents\test::$($sub -replace "`r?`n", '%0A')"
+          if ($sub -match "BUILTIN|OWNER RIGHTS|Everyone|Authenticated Users") { Write-Output "::error::Un sous-dossier de data est accessible à d'autres comptes"; exit 1 }
+
+      - name: Tests
+        shell: pwsh
+        run: |
+          $out = uv run pytest -q -p no:cacheprovider 2>&1 | Out-String
+          $code = $LASTEXITCODE
+          $tail = ($out -split "`r?`n" | Select-Object -Last 60) -join '%0A'
+          Write-Output $out
+          Write-Output "::notice title=pytest ($code)::$tail"
+          exit $code

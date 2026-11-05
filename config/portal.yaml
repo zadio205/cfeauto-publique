@@ -1,0 +1,42 @@
+# Description du site, séparée du code pour s'adapter à ses évolutions.
+#
+# NON CALIBRÉ : ces valeurs sont des hypothèses, écrites sans accès à un compte réel.
+# Vérifier chaque URL et sélecteur avec `cfeauto calibrate --account <id>`,
+# puis passer `calibrated` à true. La collecte refuse de démarrer avant cela.
+calibrated: false
+allowed_domain: impots.gouv.fr
+
+# Le site impose un CAPTCHA : la connexion est toujours faite par un humain dans la fenêtre.
+login:
+  url: https://cfspro.impots.gouv.fr/mire/accueil.do
+  # Doit être visible sur toutes les pages une fois connecté.
+  # Relevé sur le site : <button class="fr-btn" aria-controls="modal-logout">Me déconnecter</button>
+  logged_in_selector: '[aria-controls="modal-logout"], :is(a, button):text-matches("d[ée]connex|d[ée]connect", "i")'
+
+# Sélection du dossier client, commune à toutes les rubriques. Sur ce site, le dossier se choisit
+# après la rubrique : la recherche par SIREN est donc dans les étapes de chaque rubrique.
+select_dossier: []
+
+# Relevé sur le site : « Avis CFE » → recherche du SIREN → lien du dossier (nouvel onglet)
+# → « Accès aux avis de CFE » → tableau des avis, un lien « Rôle général n°… » par avis.
+# Pour le dossier suivant : on ferme l'onglet de l'avis, le premier onglet est resté sur la
+# recherche de dossier, et on retape le SIREN.
+cfe:
+  steps:
+    - {action: main_tab}
+    - {action: click, target: "a[href*='afficherSelectionDossier.do'][href*='idth=consulter.avis.cfe']", skip_if: "#rechercheSiren"}
+    - {action: fill, target: "#rechercheSiren", value: "{siren}"}
+    - {action: click, target: "button[title='Rechercher']"}
+    - {action: click, target: "a[href*='idDossier={siren}']"}
+    - {action: click, target: "[id='accueilForm:boutonCFE']"}
+  # Une ligne du tableau par avis : son texte sert d'intitulé (année, numéro de rôle).
+  # La ligne la plus proche du lien, et non une ligne d'un tableau de mise en page qui l'entoure.
+  item_selector: "tr:has(a[id^='form:tableauAvisImposition:']):not(:has(tr a[id^='form:tableauAvisImposition:']))"
+  download_selector: "a[id^='form:tableauAvisImposition:']"
+  dedupe_by_label: true
+  # true : seulement les avis de l'année la plus récente du tableau (ex. 2026, puis 2027 l'an prochain).
+  # false : tout l'historique disponible.
+  only_latest_year: true
+
+# Attestations et messagerie ne sont pas collectées. Pour les réactiver, ajouter ici des sections
+# « attestation: » et « messages: » (voir tests/fake_portal.py pour leur forme).

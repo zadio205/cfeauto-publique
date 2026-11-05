@@ -1,0 +1,9 @@
+# Copier vers config/accounts.yaml. Aucun identifiant ni mot de passe ici :
+# la connexion se fait à la main, dans la fenêtre ouverte par le robot.
+accounts:
+  - id: cabinet
+    dossiers:
+      - siren: "123456789"
+        name: Société Exemple
+      - siren: "987654321"
+        name: Autre Société
